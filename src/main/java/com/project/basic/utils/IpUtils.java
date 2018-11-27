@@ -9,6 +9,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * 
+ * @Author  LiuBao
+ * @Version 2.0
+ * @Date 2018年11月27日
+ */
 public class IpUtils {
 	private static final Logger LOGGER = LoggerFactory.getLogger(IpUtils.class);
 	private static List<String> list = null;
