@@ -15,8 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
  * 
  */
 public class FileUploadUtils {
-
-    private static Logger logger = LoggerFactory.getLogger(FileUploadUtils.class);
+    private static Logger LOGGER = LoggerFactory.getLogger(FileUploadUtils.class);
     
 	/**
 	 * 上传文件,进行存储
@@ -35,7 +34,7 @@ public class FileUploadUtils {
 				long size = file.getSize();
 				//文件原名
 				String originalFileName = file.getOriginalFilename();
-				logger.info("文件上传,名称为:{},原名为:{},类型为:{},长度为:{}!",name,originalFileName,contentType,size);
+				LOGGER.info("文件上传,名称为:{},原名为:{},类型为:{},长度为:{}!",name,originalFileName,contentType,size);
 			    
 			    filePathList = new ArrayList<String>();
 				//使用自定义文件资源库
@@ -63,9 +62,9 @@ public class FileUploadUtils {
 					//全部访问路径
 					//pathList.add(serverPath+subPath+originalFileName);
 					filePathList.add(fullName);
-					logger.info("文件上传,拷贝文件结束,生成的文件全路径为:{}",fullName);
+					LOGGER.info("文件上传,拷贝文件结束,生成的文件全路径为:{}",fullName);
 				} catch (Exception e) {
-				    logger.error("文件上传,拷贝文件异常!",e);
+				    LOGGER.error("文件上传,拷贝文件异常!",e);
 				}
 			}
 		}
