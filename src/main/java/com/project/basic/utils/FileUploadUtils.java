@@ -41,7 +41,7 @@ public class FileUploadUtils {
                 //String realPath = PropertityUtils.getContextProperty(uploadPath);
                 // 按照日期,生成子目录信息
                 //String subPath = "/"+DatetimeUtils.currentDateStr()+"/"+File.pathSeparator;
-                String subPath = File.separator+DateTimeUtil.formatDate2Str()+File.separator;
+                String subPath = File.separator+DateTimeUtil.formatDate2Str(DateTimeUtil.DATE_PATTON_3)+File.separator;
                 //originalFileName=DatetimeUtils.currentTimestampStr()+"_"+originalFileName;
 				//保存文件的本地全路径信息
                 String fullName = uploadPath+subPath+originalFileName;
