@@ -2,6 +2,7 @@ package com.project.basic.service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import tk.mybatis.mapper.entity.Example;
 
@@ -41,7 +42,7 @@ public interface BaseService<T> {
      * @param T record 包含删除的历史数据
      * @return  List<T>
      */
-    List<T> selectListByPage(T record,int pageIndex, int pageSize);
+    List<T> selectListByPage(T record,Integer pageIndex, Integer pageSize);
     
     /**
      * 支持分页的条件查询
@@ -49,14 +50,24 @@ public interface BaseService<T> {
      * @param rowBounds
      * @return
      */
-    List<T> selectByExampleAndRowBounds(Example example, int pageIndex, int pageSize);
+    List<T> selectByExampleAndRowBounds(Example example, Integer pageIndex, Integer pageSize);
+
+    /**
+     * 条件查询,带分页条件
+     */
+    List<T> selectByExample(Map<String, String> paramMap, Integer pageIndex, Integer pageSize);
+    
+    /**
+     * 条件查询,带分页条件
+     */
+    Integer selectByExampleCount(Map<String, String> paramMap);
     
     /**
      * 分页条件查询总数
      * @param T record 包含删除的历史数据
-     * @return int
+     * @return Integer
      */
-    int selectCount(T record);
+    Integer selectCount(T record);
     
     /**
      * 根据key查询对应的list集合值的集合信息
@@ -68,47 +79,52 @@ public interface BaseService<T> {
     /**
      * 按实体类所有字段插入数据
      */
-    int insert(T record);
+    Integer insert(T record);
     
     /**
      * 按实体类所有字段批量插入数据:oracle过时
      */
-    int insertList(List<T> records);
+    Integer insertList(List<T> records);
 
     /**
      * 按实体类选择非空字段插入数据
      */
-    int insertSelective(T record);
+    Integer insertSelective(T record);
 
     /**
      * 按主键update所有字段
      */
-    int updateByPrimaryKey(T record);
+    Integer updateByPrimaryKey(T record);
     
     /**
      * 按主键update非空字段
      */
-    int updateByPrimaryKeySelective(T record);
+    Integer updateByPrimaryKeySelective(T record);
     
     /**
      * 按code业务码update所有字段
      */
-    int updateByCode(T record);
+    Integer updateByCode(T record);
     
     /**
      * 按code业务码update非空字段
      */
-    int updateByCodeSelective(T record);
+    Integer updateByCodeSelective(T record);
 
     /**
      * 按主键删除数据
      */
-    int deleteByPrimaryKey(Long id);
+    Integer deleteByPrimaryKey(Long id);
+    
+    /**
+     * 按主键删除数据
+     */
+    Integer deleteByPrimaryKeys(Long[] id);
     
     /**
      * 按业务code删除数据
      */
-    int deleteByCode(String code);
+    Integer deleteByCode(String code);
 
     /**
      * 根据实体对象T,从缓存中查询对应的数据集合
@@ -145,11 +161,19 @@ public interface BaseService<T> {
      */
     List<T> selectByCreateDateBetween(Date createDateBegin, Date createDateEnd);
 
-    List<T> selectByCreateDateBetweenAndRowBounds(Date createDateBegin, Date createDateEnd, int pageIndex,int pageSize);
+    List<T> selectByCreateDateBetweenAndRowBounds(Date createDateBegin, Date createDateEnd, Integer pageIndex,Integer pageSize);
 
     /**
      * 指定日期记录列表个数查询
      */
-    int selectCountByCreateDateBetween(Date createDateBegin, Date createDateEnd);
+    Integer selectCountByCreateDateBetween(Date createDateBegin, Date createDateEnd);
+
+    /**
+     * 生成全局的自增序列号
+     * @param @NotNull projectKey 项目key前缀 不可为空!
+     * @param redisKey  模块key名称 可为空
+     */
+    String generateSerialNumber(String projectKey, String redisKey);
+
 
 }

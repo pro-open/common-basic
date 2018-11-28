@@ -6,15 +6,18 @@ import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Resource;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.RowBounds;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,6 +32,7 @@ import com.project.basic.utils.MyMapper;
 import com.project.basic.utils.UUIDGenerator;
 
 import tk.mybatis.mapper.entity.Example;
+import tk.mybatis.mapper.entity.Example.Criteria;
 
 /**
  * service层统一基础服务接口实现
@@ -46,6 +50,12 @@ public abstract class BaseServiceImpl<T extends BaseEntity> implements BaseServi
     @Resource(name="iRedisService")
     @SuppressWarnings("rawtypes")
     private IRedisService iRedisService;
+    
+    @Value("${serial.number.length:8}")
+    private int serialNumberLength;
+    
+    @Value("${redis.cache.prefix:dev}")
+    private String cachePrefix;
     
     @SuppressWarnings("unchecked")
     public BaseServiceImpl(final MyMapper<T> myMapper ) {
@@ -94,7 +104,7 @@ public abstract class BaseServiceImpl<T extends BaseEntity> implements BaseServi
 
     @Override
 //    @Transactional(propagation=Propagation.REQUIRED,readOnly = true)
-    public List<T> selectListByPage(T record, int pageIndex, int pageSize) {
+    public List<T> selectListByPage(T record, Integer pageIndex, Integer pageSize) {
         if(LOGGER.isDebugEnabled()){
             LOGGER.debug("查询条件信息:pageIndex为:{},pageSize为:{}",pageIndex,pageSize);
             LOGGER.debug("查询条件信息为:{}",JSON.toJSONString(record));
@@ -108,8 +118,87 @@ public abstract class BaseServiceImpl<T extends BaseEntity> implements BaseServi
     }
     
     @Override
+    public Integer selectByExampleCount(Map<String,String> paramMap){
+//        if(MapUtils.isEmpty(paramMap)){
+//            throw new BaseServiceException("请求参数属性Map不能为空!");
+//        }
+        Example example = makeExample(paramMap);
+        if(example==null){
+            return null;
+        }
+        return myMapper.selectCountByExample(example);
+    }
+    
+    /**
+     * 构造Example查询条件
+     */
+    private Example makeExample(Map<String, String> paramMap) {
+        Example example = new Example(entityClass);
+        Date startDate=null, endDate=null;
+        Criteria criteria = example.createCriteria();
+        Boolean delFlag=null;
+        for (Map.Entry<String,String> entry : paramMap.entrySet()) {
+            String key = entry.getKey();
+            String value = entry.getValue();
+            if(StringUtils.isAnyBlank(key,value)){
+                continue;
+            }
+            if(StringUtils.equalsIgnoreCase("order", key)){
+                //example.setOrderByClause("id DESC");
+                example.setOrderByClause(value);
+            }else if(StringUtils.equalsIgnoreCase("delFlag", key)){
+                delFlag=Boolean.valueOf(value);
+                criteria.andEqualTo(key,delFlag);
+            }else if(StringUtils.equalsIgnoreCase("startDate", key)){
+                startDate=DateTimeUtil.parseDatetime(value,DateTimeUtil.DATE_PATTON_1);
+            }else if(StringUtils.equalsIgnoreCase("endDate", key)){
+                endDate=DateTimeUtil.parseDatetime(value,DateTimeUtil.DATE_PATTON_1);
+            }else if(StringUtils.equalsIgnoreCase("keywords1", key)){
+                criteria.orLike("code", "%"+value+"%").orLike("leader", "%"+value+"%");
+            }else if(StringUtils.equalsIgnoreCase("keywords2", key)){
+                criteria.orLike("code", "%"+value+"%").orLike("leader", "%"+value+"%");
+            }else if(StringUtils.equalsIgnoreCase("keywords3", key)){
+                criteria.orLike("code", "%"+value+"%").orLike("leader", "%"+value+"%");
+            }else if(StringUtils.equalsIgnoreCase("keywords4", key)){
+                criteria.orLike("code", "%"+value+"%").orLike("leader", "%"+value+"%");
+            }else{
+                if(StringUtils.contains(value, ",")){
+                    criteria.andIn(key, Arrays.asList(StringUtils.split(value,",")));
+                }else{
+                    criteria.andEqualTo(key,value);
+                }
+            }
+        }
+        
+        if(startDate!=null&&endDate!=null){
+            if(startDate.after(endDate)){
+                Date tmp=startDate;
+                startDate=endDate;
+                endDate=tmp;
+            }
+            criteria.andBetween("createDate", startDate, endDate);
+        }
+        if(delFlag==null){
+            criteria.andEqualTo("delFlag",Boolean.FALSE);
+        }
+        return example;
+    }
+
+    @Override
+    public List<T> selectByExample(Map<String,String> paramMap , Integer pageIndex, Integer pageSize){
+//        if(MapUtils.isEmpty(paramMap)){
+//            throw new BaseServiceException("请求参数属性Map不能为空!");
+//        }
+        Example example = makeExample(paramMap);
+        if(example==null){
+            return null;
+        }
+        return myMapper.selectByExampleAndRowBounds(example , makeRowBounds(pageIndex, pageSize));
+    }
+    
+    @Override
 //    @Transactional(propagation=Propagation.REQUIRED,readOnly = true)
-    public List<T> selectByExampleAndRowBounds(Example example, int pageIndex, int pageSize) {
+    public List<T> selectByExampleAndRowBounds(Example example, Integer pageIndex, Integer pageSize) {
         if(LOGGER.isDebugEnabled()){
             LOGGER.debug("查询条件信息:pageIndex为:{},pageSize为:{}",pageIndex,pageSize);
             LOGGER.debug("查询条件信息为:{}",JSON.toJSONString(example));
@@ -149,7 +238,7 @@ public abstract class BaseServiceImpl<T extends BaseEntity> implements BaseServi
     }
     
     @Override
-    public int selectCountByCreateDateBetween(Date createDateBegin,Date createDateEnd) {
+    public Integer selectCountByCreateDateBetween(Date createDateBegin,Date createDateEnd) {
         if(LOGGER.isDebugEnabled()){
             LOGGER.debug("查询条件信息:createDateBegin为:{},createDateEnd为:{}",createDateBegin,createDateEnd);
         }
@@ -172,7 +261,7 @@ public abstract class BaseServiceImpl<T extends BaseEntity> implements BaseServi
     
     @Override
 //    @Transactional(propagation=Propagation.REQUIRED,readOnly = true)
-    public List<T> selectByCreateDateBetweenAndRowBounds(Date createDateBegin,Date createDateEnd, int pageIndex, int pageSize) {
+    public List<T> selectByCreateDateBetweenAndRowBounds(Date createDateBegin,Date createDateEnd, Integer pageIndex, Integer pageSize) {
         if(LOGGER.isDebugEnabled()){
             LOGGER.debug("查询条件信息:createDateBegin为:{},createDateEnd为:{}",createDateBegin,createDateEnd);
         }
@@ -217,7 +306,7 @@ public abstract class BaseServiceImpl<T extends BaseEntity> implements BaseServi
     }
 
     @Override
-    public int selectCount(T record) {
+    public Integer selectCount(T record) {
         if(LOGGER.isDebugEnabled()){
             LOGGER.debug("查询条件信息为:{}",JSON.toJSONString(record));
         }
@@ -226,11 +315,11 @@ public abstract class BaseServiceImpl<T extends BaseEntity> implements BaseServi
 
     @Override
     @Transactional(propagation=Propagation.REQUIRED,rollbackFor=Exception.class,readOnly = false)
-    public int insert(T record) {
+    public Integer insert(T record) {
         if(LOGGER.isDebugEnabled()){
             LOGGER.debug("插入条件信息为:{}",JSON.toJSONString(record));
         }
-        int result = myMapper.insert(fillInsertBaseEntity(record));
+        Integer result = myMapper.insert(fillInsertBaseEntity(record));
         String redisKey = null;
         if (record instanceof Cacheable) {
             redisKey = ((Cacheable) record).getRedisKey();
@@ -253,8 +342,8 @@ public abstract class BaseServiceImpl<T extends BaseEntity> implements BaseServi
 
     @Override
     @Transactional(propagation=Propagation.REQUIRED,rollbackFor=Exception.class,readOnly = false)
-    public int insertList(List<T> records) {
-        int insertBatch = myMapper.insertList(fillInsertBaseEntitys(records));
+    public Integer insertList(List<T> records) {
+        Integer insertBatch = myMapper.insertList(fillInsertBaseEntitys(records));
         if(LOGGER.isDebugEnabled()){
             LOGGER.debug("批量插入条件结果,更新记录条数为:{}条!",insertBatch);
         }
@@ -263,11 +352,11 @@ public abstract class BaseServiceImpl<T extends BaseEntity> implements BaseServi
 
     @Override
     @Transactional(propagation=Propagation.REQUIRED,rollbackFor=Exception.class,readOnly = false)
-    public int insertSelective(T record) {
+    public Integer insertSelective(T record) {
         if(LOGGER.isDebugEnabled()){
             LOGGER.debug("插入条件信息为:{}",JSON.toJSONString(record));
         }
-        int result = myMapper.insertSelective(fillInsertBaseEntity(record));
+        Integer result = myMapper.insertSelective(fillInsertBaseEntity(record));
         String redisKey = null;
         if (record instanceof Cacheable) {
             redisKey = ((Cacheable) record).getRedisKey();
@@ -290,11 +379,11 @@ public abstract class BaseServiceImpl<T extends BaseEntity> implements BaseServi
 
     @Override
     @Transactional(propagation=Propagation.REQUIRED,rollbackFor=Exception.class,readOnly = false)
-    public int updateByPrimaryKey(T record) {
+    public Integer updateByPrimaryKey(T record) {
         if(LOGGER.isDebugEnabled()){
             LOGGER.debug("更新条件信息为:{}",JSON.toJSONString(record));
         }
-        int result = myMapper.updateByPrimaryKey(record);
+        Integer result = myMapper.updateByPrimaryKey(record);
         String redisKey = null;
         if (record instanceof Cacheable) {
             redisKey = ((Cacheable) record).getRedisKey();
@@ -318,11 +407,11 @@ public abstract class BaseServiceImpl<T extends BaseEntity> implements BaseServi
 
     @Override
     @Transactional(propagation=Propagation.REQUIRED,rollbackFor=Exception.class,readOnly = false)
-    public int updateByPrimaryKeySelective(T record) {
+    public Integer updateByPrimaryKeySelective(T record) {
         if(LOGGER.isDebugEnabled()){
             LOGGER.debug("更新条件信息为:{}",JSON.toJSONString(record));
         }
-        int result = myMapper.updateByPrimaryKeySelective(record);
+        Integer result = myMapper.updateByPrimaryKeySelective(record);
         String redisKey = null;
         if (record instanceof Cacheable) {
             redisKey = ((Cacheable) record).getRedisKey();
@@ -346,7 +435,7 @@ public abstract class BaseServiceImpl<T extends BaseEntity> implements BaseServi
 
     @Override
     @Transactional(propagation=Propagation.REQUIRED,rollbackFor=Exception.class,readOnly = false)
-    public int updateByCode(T record) {
+    public Integer updateByCode(T record) {
         if(LOGGER.isDebugEnabled()){
             LOGGER.debug("更新条件信息为:{}",JSON.toJSONString(record));
         }
@@ -354,7 +443,7 @@ public abstract class BaseServiceImpl<T extends BaseEntity> implements BaseServi
         Example example = new Example(entityClass);
         example.createCriteria().andEqualTo("code", code);
         //record.setCode(null);
-        int result = myMapper.updateByExample(record, example);
+        Integer result = myMapper.updateByExample(record, example);
         String redisKey = null;
         if (record instanceof Cacheable) {
             redisKey = ((Cacheable) record).getRedisKey();
@@ -562,7 +651,7 @@ public abstract class BaseServiceImpl<T extends BaseEntity> implements BaseServi
 
     @Override
     @Transactional(propagation=Propagation.REQUIRED,rollbackFor=Exception.class,readOnly = false)
-    public int updateByCodeSelective(T record) {
+    public Integer updateByCodeSelective(T record) {
         String code=record.getCode();
         if(LOGGER.isDebugEnabled()){
             LOGGER.debug("更新条件信息为:{}",JSON.toJSONString(record));
@@ -570,7 +659,7 @@ public abstract class BaseServiceImpl<T extends BaseEntity> implements BaseServi
         Example example = new Example(entityClass);
         example.createCriteria().andEqualTo("code", code);
         record.setCode(null);
-        int result = myMapper.updateByExampleSelective(record, example);
+        Integer result = myMapper.updateByExampleSelective(record, example);
         String redisKey = null;
         if (record instanceof Cacheable) {
             redisKey = ((Cacheable) record).getRedisKey();
@@ -594,8 +683,8 @@ public abstract class BaseServiceImpl<T extends BaseEntity> implements BaseServi
 
     @Override
     @Transactional(propagation=Propagation.REQUIRED,rollbackFor=Exception.class,readOnly = false)
-    public int deleteByPrimaryKey(Long id) {
-        int result = 0;
+    public Integer deleteByPrimaryKey(Long id) {
+        Integer result = 0;
         try {
             T record = selectByPrimaryKey(id);
             if(record==null){
@@ -606,17 +695,41 @@ public abstract class BaseServiceImpl<T extends BaseEntity> implements BaseServi
 //            record.setId(id);
 //            record.setDelFlag(Boolean.TRUE);
             result = myMapper.updateByPrimaryKeySelective(record);
-            //int result = myMapper.deleteByPrimaryKey(id);
+            //Integer result = myMapper.deleteByPrimaryKey(id);
             return result;
         } catch (Exception e) {
             LOGGER.error("方法deleteByPrimaryKey:[{}]异常:{}",id,e);
             throw new BaseServiceException("数据查询异常,id="+id+"!");
         }
     }
+    
+    @Override
+    @Transactional(propagation=Propagation.REQUIRED,rollbackFor=Exception.class,readOnly = false)
+    public Integer deleteByPrimaryKeys(Long[] ids) {
+        if(ArrayUtils.isEmpty(ids)){
+            return 0;
+        }
+        Integer result = 0;
+        try {
+            T record = entityClass.newInstance();
+            record.setId(null);
+            record.setDelFlag(Boolean.TRUE);
+            Example example = new Example(entityClass);
+            example.createCriteria()
+                        .andIn("id", Arrays.asList(ids))
+                        .andEqualTo("delFlag", Boolean.FALSE)
+                        ;
+            result = myMapper.updateByExampleSelective(record, example);
+            return result;
+        } catch (Exception e) {
+            LOGGER.error("方法deleteByPrimaryKey:[{}]异常:{}",ids,e);
+            throw new BaseServiceException("数据查询异常,id="+ids+"!");
+        }
+    }
 
     @Override
     @Transactional(propagation=Propagation.REQUIRED,rollbackFor=Exception.class,readOnly = false)
-    public int deleteByCode(String code) {
+    public Integer deleteByCode(String code) {
         try {
             Example example = new Example(entityClass);
             T newInstance = entityClass.newInstance();
@@ -624,14 +737,53 @@ public abstract class BaseServiceImpl<T extends BaseEntity> implements BaseServi
             newInstance.setDelFlag(Boolean.TRUE);
             example.createCriteria().andEqualTo("code", code);
             newInstance.setCode(null);
-            int result = myMapper.updateByExampleSelective(newInstance, example);
+            Integer result = myMapper.updateByExampleSelective(newInstance, example);
             //example.createCriteria().andEqualTo("code", code);
-            //int result = myMapper.deleteByExample(example);
+            //Integer result = myMapper.deleteByExample(example);
             return result;
         } catch (InstantiationException | IllegalAccessException e) {
             LOGGER.error("方法deleteByCode:[{}]异常:{}",code,e);
             throw new BaseServiceException("数据查询异常,code="+code+"!");
         }
+    }
+    
+    /**
+     * 生成全局的自增序列号
+     * @param @NotNull projectKey 项目key前缀 不可为空!
+     * @param redisKey  模块key名称 可为空
+     */
+    @Override
+    public synchronized String generateSerialNumber(String projectKey,String redisKey) {
+        if(StringUtils.isBlank(projectKey)){
+            throw new BaseServiceException("-1", "参数信息projectKey不能为空!");
+        }
+        String cacheKey=cachePrefix+":"+projectKey;
+        if(StringUtils.isNoneBlank(redisKey)){
+            cacheKey+=":"+redisKey;
+        }
+        Long serialNumber = iRedisService.incrementBy(cacheKey);
+        return projectKey+DateTimeUtil.formataDay()+formatSerialNumber(serialNumber);
+    }
+    
+    /**
+     * 当前设置位数为8位数
+     */
+    private String formatSerialNumber(Long serialNumber) {
+        if(serialNumber<0){
+            serialNumber=0L;
+        }
+        String serialNumberFormat=String.valueOf(serialNumber);
+        if (StringUtils.isBlank(serialNumberFormat)) {
+            serialNumberFormat="0000";
+        }
+        
+        if(serialNumberFormat.length()>serialNumberLength){
+            serialNumberFormat=serialNumberFormat.substring(serialNumberFormat.length()-serialNumberLength,serialNumberFormat.length());
+        }
+        while(serialNumberFormat.length()<serialNumberLength){
+            serialNumberFormat="0"+serialNumberFormat;
+        }
+        return serialNumberFormat;
     }
 
     /**
@@ -694,7 +846,7 @@ public abstract class BaseServiceImpl<T extends BaseEntity> implements BaseServi
      *          ......................................................
      *          m               n               (m-1)*n,n     第m页
      */
-    protected RowBounds makeRowBounds(int pageIndex, int pageSize) {
+    protected RowBounds makeRowBounds(Integer pageIndex, Integer pageSize) {
         pageIndex = pageIndex < 1 ? 1 : pageIndex;
         pageSize = (pageSize <= 0) ? 10 : pageSize;
         pageSize = pageSize > Constants.BATCH_SIZE_MAX ? Constants.BATCH_SIZE_MAX : pageSize;
