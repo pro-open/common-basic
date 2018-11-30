@@ -32,6 +32,7 @@ import org.springframework.web.servlet.NoHandlerFoundException;
 import com.project.basic.conf.MessageSourceUtil;
 import com.project.basic.exception.AbsErrorCodeConstant;
 import com.project.basic.exception.BaseServiceException;
+import com.project.basic.exception.NoAuthException;
 import com.project.basic.exception.RequestLimitException;
 import com.project.basic.vo.ResultInfo;
 
@@ -232,6 +233,17 @@ public class GlobalExceptionAdvice {
 		ResultInfo<Object> failure = new ResultInfo<Object>(AbsErrorCodeConstant.ERROR_CODE_DEFAULT, message, rejectedValue);
         return failure;
 	}
+	
+	 /**
+     *NoAuthException 访问资源未授权
+     */
+    @ExceptionHandler(NoAuthException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public Object handleNoAuthException(HttpServletResponse response,NoAuthException exception) {
+        LOGGER.error("访问资源未授权", exception);
+        return new ResultInfo<String>().buildFailure(AbsErrorCodeConstant.ERROR_CODE_NOAUTH,  
+                messageSourceUtil.getMessage(AbsErrorCodeConstant.ERROR_CODE_NOAUTH));
+    }
 	
 	/**
 	 *MultipartException文件信息有问题

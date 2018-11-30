@@ -12,6 +12,7 @@ import javax.annotation.Resource;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.RowBounds;
@@ -119,9 +120,9 @@ public abstract class BaseServiceImpl<T extends BaseEntity> implements BaseServi
     
     @Override
     public Integer selectByExampleCount(Map<String,String> paramMap){
-//        if(MapUtils.isEmpty(paramMap)){
-//            throw new BaseServiceException("请求参数属性Map不能为空!");
-//        }
+        if(MapUtils.isEmpty(paramMap)){
+            throw new BaseServiceException("请求参数属性Map不能为空!");
+        }
         Example example = makeExample(paramMap);
         if(example==null){
             return null;
@@ -132,9 +133,9 @@ public abstract class BaseServiceImpl<T extends BaseEntity> implements BaseServi
     /**
      * 构造Example查询条件
      */
-    private Example makeExample(Map<String, String> paramMap) {
+    @Override
+    public Example makeExample(Map<String, String> paramMap) {
         Example example = new Example(entityClass);
-        Date startDate=null, endDate=null;
         Criteria criteria = example.createCriteria();
         Boolean delFlag=null;
         for (Map.Entry<String,String> entry : paramMap.entrySet()) {
@@ -149,34 +150,17 @@ public abstract class BaseServiceImpl<T extends BaseEntity> implements BaseServi
             }else if(StringUtils.equalsIgnoreCase("delFlag", key)){
                 delFlag=Boolean.valueOf(value);
                 criteria.andEqualTo(key,delFlag);
-            }else if(StringUtils.equalsIgnoreCase("startDate", key)){
-                startDate=DateTimeUtil.parseDatetime(value,DateTimeUtil.DATE_PATTON_1);
-            }else if(StringUtils.equalsIgnoreCase("endDate", key)){
-                endDate=DateTimeUtil.parseDatetime(value,DateTimeUtil.DATE_PATTON_1);
-            }else if(StringUtils.equalsIgnoreCase("keywords1", key)){
-                criteria.orLike("code", "%"+value+"%").orLike("leader", "%"+value+"%");
-            }else if(StringUtils.equalsIgnoreCase("keywords2", key)){
-                criteria.orLike("code", "%"+value+"%").orLike("leader", "%"+value+"%");
-            }else if(StringUtils.equalsIgnoreCase("keywords3", key)){
-                criteria.orLike("code", "%"+value+"%").orLike("leader", "%"+value+"%");
-            }else if(StringUtils.equalsIgnoreCase("keywords4", key)){
-                criteria.orLike("code", "%"+value+"%").orLike("leader", "%"+value+"%");
-            }else{
+            } else{
                 if(StringUtils.contains(value, ",")){
                     criteria.andIn(key, Arrays.asList(StringUtils.split(value,",")));
-                }else{
-                    criteria.andEqualTo(key,value);
+                }else {
+                    if(StringUtils.contains(key, "Equal")){
+                        criteria.andEqualTo(key.replace("Equal", ""),value);
+                    } else if(StringUtils.contains(key, "Ignore")){
+                        criteria.andNotEqualTo(key.replace("Ignore", ""),value);
+                    }
                 }
             }
-        }
-        
-        if(startDate!=null&&endDate!=null){
-            if(startDate.after(endDate)){
-                Date tmp=startDate;
-                startDate=endDate;
-                endDate=tmp;
-            }
-            criteria.andBetween("createDate", startDate, endDate);
         }
         if(delFlag==null){
             criteria.andEqualTo("delFlag",Boolean.FALSE);
@@ -186,9 +170,9 @@ public abstract class BaseServiceImpl<T extends BaseEntity> implements BaseServi
 
     @Override
     public List<T> selectByExample(Map<String,String> paramMap , Integer pageIndex, Integer pageSize){
-//        if(MapUtils.isEmpty(paramMap)){
-//            throw new BaseServiceException("请求参数属性Map不能为空!");
-//        }
+        if(MapUtils.isEmpty(paramMap)){
+            throw new BaseServiceException("请求参数属性Map不能为空!");
+        }
         Example example = makeExample(paramMap);
         if(example==null){
             return null;

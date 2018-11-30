@@ -18,6 +18,10 @@ public abstract class AbsErrorCodeConstant{
     public static final String FAILURE = "99999";
     //服务端正忙,请稍后重试
     public static final String ERROR_CODE_DEFAULT= "99998";
+  //NoAuth 访问资源未授权!
+    public static final String ERROR_CODE_NOAUTH = "99997";
+    //请求头Header信息不存在!
+    public static final String ERROR_CODE_NOHEADER = "99996";
     
     //服务端异常响应码
     public static final String ERROR_CODE_302 = "error.302";

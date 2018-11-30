@@ -8,6 +8,9 @@ package com.project.basic.utils;
  *   2017年4月10日
  */
 public abstract class Constants {
+
+    public static final String TRUE = "true";
+    public static final String FALSE = "false";
     
     /**批量阀值*/
     public static final int PAGE_INDEX = 0;

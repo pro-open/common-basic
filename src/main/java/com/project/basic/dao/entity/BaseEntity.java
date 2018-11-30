@@ -113,7 +113,6 @@ public abstract class BaseEntity extends ToString {
         this.remark = remark;
     }
 
-    @JSONField(serialize=false)
     public String getCreateBy() {
         return createBy;
     }

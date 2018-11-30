@@ -175,5 +175,7 @@ public interface BaseService<T> {
      */
     String generateSerialNumber(String projectKey, String redisKey);
 
+    Example makeExample(Map<String, String> paramMap);
+
 
 }
