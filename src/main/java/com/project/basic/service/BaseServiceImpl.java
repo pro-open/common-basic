@@ -740,6 +740,11 @@ public abstract class BaseServiceImpl<T extends BaseEntity> implements BaseServi
      */
     @Override
     public synchronized String generateSerialNumber(String projectKey,String redisKey) {
+        return generateSerialNumber(projectKey, redisKey, null);
+    }
+    
+    @Override
+    public synchronized String generateSerialNumber(String projectKey,String redisKey,Integer length) {
         if(StringUtils.isBlank(projectKey)){
             throw new BaseServiceException("-1", "参数信息projectKey不能为空!");
         }
@@ -748,25 +753,28 @@ public abstract class BaseServiceImpl<T extends BaseEntity> implements BaseServi
             cacheKey+=":"+redisKey;
         }
         Long serialNumber = iRedisService.incrementBy(cacheKey);
-        return projectKey+DateTimeUtil.formataDay()+formatSerialNumber(serialNumber);
+        return projectKey+DateTimeUtil.formataDay()+formatSerialNumber(serialNumber,length);
     }
     
     /**
      * 当前设置位数为8位数
      */
-    private String formatSerialNumber(Long serialNumber) {
-        if(serialNumber<0){
+    private String formatSerialNumber(Long serialNumber,Integer length) {
+        if(serialNumber ==null||serialNumber<0){
             serialNumber=0L;
+        }
+        if(length==null){
+            length=this.serialNumberLength;
         }
         String serialNumberFormat=String.valueOf(serialNumber);
         if (StringUtils.isBlank(serialNumberFormat)) {
             serialNumberFormat="0000";
         }
         
-        if(serialNumberFormat.length()>serialNumberLength){
-            serialNumberFormat=serialNumberFormat.substring(serialNumberFormat.length()-serialNumberLength,serialNumberFormat.length());
+        if(serialNumberFormat.length()>length){
+            serialNumberFormat=serialNumberFormat.substring(serialNumberFormat.length()-length,serialNumberFormat.length());
         }
-        while(serialNumberFormat.length()<serialNumberLength){
+        while(serialNumberFormat.length()<length){
             serialNumberFormat="0"+serialNumberFormat;
         }
         return serialNumberFormat;

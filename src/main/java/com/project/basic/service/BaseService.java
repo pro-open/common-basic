@@ -174,6 +174,8 @@ public interface BaseService<T> {
      * @param redisKey  模块key名称 可为空
      */
     String generateSerialNumber(String projectKey, String redisKey);
+    
+    String generateSerialNumber(String projectKey, String redisKey, Integer length);
 
     Example makeExample(Map<String, String> paramMap);
 
