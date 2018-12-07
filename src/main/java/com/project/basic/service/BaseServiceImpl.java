@@ -3,10 +3,12 @@ package com.project.basic.service;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 
@@ -73,12 +75,31 @@ public abstract class BaseServiceImpl<T extends BaseEntity> implements BaseServi
     }
     
     @Override
-//    @Transactional(propagation=Propagation.REQUIRED,readOnly = true)
     public List<T> selectByEntity(T record) {
+        return selectByEntity(record, Boolean.FALSE);
+    }
+    
+    @Override
+    public List<T> selectByEntity(T record,Boolean isDistinct) {
         if(LOGGER.isDebugEnabled()){
             LOGGER.debug("查询条件信息为:{}",JSON.toJSONString(record));
         }
-        return myMapper.select(record);
+        List<T> resultList =new ArrayList<>();
+        List<T> recordList = myMapper.select(record);
+        if(isDistinct&&CollectionUtils.isNotEmpty(recordList)){
+          //推荐:JDK8写法
+            recordList.stream().forEach(
+                    p -> {
+                        if (!resultList.contains(p)) {
+                            resultList.add(p);
+                        }
+                    }
+            );
+        }else{
+            //resultList.addAll(recordList);
+            return recordList;
+        }
+        return resultList;
     }
 
     @Override
@@ -284,6 +305,8 @@ public abstract class BaseServiceImpl<T extends BaseEntity> implements BaseServi
         if(CollectionUtils.isEmpty(keyList)){
             return null;
         }
+        //推荐:JDK8写法,去重操作
+        keyList = keyList.stream().distinct().collect(Collectors.toList());
         Example example = new Example(entityClass);
         example.setOrderByClause("id DESC");
         example.createCriteria().andIn(key, keyList)

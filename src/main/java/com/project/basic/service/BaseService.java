@@ -26,6 +26,12 @@ public interface BaseService<T> {
     List<T> selectByEntity(T record);
     
     /**
+     * @param isDistinct 是否对结果对象集合去重
+     *  需要对象覆写equals()方法和hashCode()方法
+     */
+    List<T> selectByEntity(T record, Boolean isDistinct);
+    
+    /**
      * 按主键查询数据
      */
     T selectByPrimaryKey(Long id);
@@ -178,6 +184,5 @@ public interface BaseService<T> {
     String generateSerialNumber(String projectKey, String redisKey, Integer length);
 
     Example makeExample(Map<String, String> paramMap);
-
 
 }
