@@ -144,6 +144,8 @@ public abstract class BaseServiceImpl<T extends BaseEntity> implements BaseServi
             if(StringUtils.isAnyBlank(key,value)){
                 continue;
             }
+            key=key.trim();
+            value=value.trim();
             if(StringUtils.equalsIgnoreCase("order", key)){
                 //example.setOrderByClause("id DESC");
                 example.setOrderByClause(value);
