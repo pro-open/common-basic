@@ -54,7 +54,7 @@ public abstract class BaseServiceImpl<T extends BaseEntity> implements BaseServi
     @SuppressWarnings("rawtypes")
     private IRedisService iRedisService;
     
-    @Value("${serial.number.length:8}")
+    @Value("${serial.number.length:6}")
     private int serialNumberLength;
     
     @Value("${redis.cache.prefix:dev}")
