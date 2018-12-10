@@ -776,7 +776,7 @@ public abstract class BaseServiceImpl<T extends BaseEntity> implements BaseServi
             cacheKey+=":"+redisKey;
         }
         Long serialNumber = iRedisService.incrementBy(cacheKey);
-        return projectKey+DateTimeUtil.formataDay()+formatSerialNumber(serialNumber,length);
+        return projectKey+DateTimeUtil.formatDay()+formatSerialNumber(serialNumber,length);
     }
     
     /**

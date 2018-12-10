@@ -62,7 +62,7 @@ public class DateTimeUtil {
         System.out.println(isTimestampZero(new Timestamp(parseDatetime(DATETIME_ZERO, DATE_PATTON_1).getTime())));
     }
 
-	public static String formataDay() {
+	public static String formatDay() {
 		return formatter.format(new Date());
 	}
 
