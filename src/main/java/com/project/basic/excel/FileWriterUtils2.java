@@ -3,11 +3,19 @@ package com.project.basic.excel;
 import static org.apache.poi.ss.usermodel.Cell.CELL_TYPE_FORMULA;
 import static org.apache.poi.ss.usermodel.Cell.CELL_TYPE_NUMERIC;
 import static org.apache.poi.ss.usermodel.Cell.CELL_TYPE_STRING;
+import static org.springframework.http.MediaType.APPLICATION_PDF_VALUE;
+import static org.springframework.http.MediaType.IMAGE_GIF_VALUE;
+import static org.springframework.http.MediaType.IMAGE_JPEG_VALUE;
+import static org.springframework.http.MediaType.IMAGE_PNG_VALUE;
 
 import java.awt.Color;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -29,6 +37,10 @@ import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFRichTextString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 
 import com.project.basic.utils.DateTimeUtil;
 
@@ -42,8 +54,6 @@ import com.project.basic.utils.DateTimeUtil;
  * <String,String>>集合对:
  * 
  * 2.封装下载文件的头信息,适用于多种格式的文件
- * 
- * 
  * 
  */
 public class FileWriterUtils2 {
@@ -69,8 +79,8 @@ public class FileWriterUtils2 {
      * 简化的方法调用入口
      * 无typeArray,sumFlag和sumArray
      */
-    public static void writeExcel2007(String fileName, String[] titleArray, List<String[]> contentArrayList,String sheetName, String filePath) {
-        writeExcel2007(fileName, titleArray, contentArrayList, null, sheetName, false, null, filePath);
+    public static String writeExcel2007(String fileName, String[] titleArray, List<String[]> contentArrayList,String sheetName, String filePath) {
+        return writeExcel2007(fileName, titleArray, contentArrayList, null, sheetName, false, null, filePath);
     }
     
     /**
@@ -78,15 +88,15 @@ public class FileWriterUtils2 {
      * 简化的方法调用入口
      * 无typeArray,sumFlag和sumArray为动态传入
      */
-    public static void writeExcel2007(String fileName, String[] titleArray, List<String[]> contentArrayList,String sheetName, boolean sumFlag, String[] sumArray, String filePath) {
-        writeExcel2007(fileName, titleArray, contentArrayList, null, sheetName, sumFlag, sumArray, filePath);
+    public static String writeExcel2007(String fileName, String[] titleArray, List<String[]> contentArrayList,String sheetName, boolean sumFlag, String[] sumArray, String filePath) {
+        return writeExcel2007(fileName, titleArray, contentArrayList, null, sheetName, sumFlag, sumArray, filePath);
     }
     
     /**
      * 2007格式:1048575 Invalid row number (-32768) outside allowable range
      * (0..1048575)
      */
-    public static void writeExcel2007(String fileName, String[] titleArray, List<String[]> contentArrayList,Integer typeArray[],String sheetName, boolean sumFlag, String[] sumArray, String filePath) {
+    public static String writeExcel2007(String fileName, String[] titleArray, List<String[]> contentArrayList,Integer typeArray[],String sheetName, boolean sumFlag, String[] sumArray, String filePath) {
         //数据长度校验 
         int titleCount = titleArray==null?0:titleArray.length;
         int typeCount = typeArray==null?0:typeArray.length;
@@ -159,6 +169,100 @@ public class FileWriterUtils2 {
                 LOGGER.error("关闭管道流fileOut信息异常!",e);
             }
         }
+        return finalName;
+    }
+    
+    /**
+     * 简化的方法调用入口
+     * 无typeArray,sumFlag和sumArray
+     */
+    public static ByteArrayOutputStream writeStreamExcel2007(String fileName, String[] titleArray, List<String[]> contentArrayList,String sheetName, String filePath) {
+        return writeStreamExcel2007(fileName, titleArray, contentArrayList, null, sheetName, false, null, filePath);
+    }
+    
+    /**
+     * 
+     * 简化的方法调用入口
+     * 无typeArray,sumFlag和sumArray为动态传入
+     */
+    public static ByteArrayOutputStream writeStreamExcel2007(String fileName, String[] titleArray, List<String[]> contentArrayList,String sheetName, boolean sumFlag, String[] sumArray, String filePath) {
+        return writeStreamExcel2007(fileName, titleArray, contentArrayList, null, sheetName, sumFlag, sumArray, filePath);
+    }
+    
+    public static ByteArrayOutputStream writeStreamExcel2007(String fileName, String[] titleArray, List<String[]> contentArrayList,Integer typeArray[],String sheetName, boolean sumFlag, String[] sumArray, String filePath) {
+        //数据长度校验 
+        int titleCount = titleArray==null?0:titleArray.length;
+        int typeCount = typeArray==null?0:typeArray.length;
+        int sumCount = sumArray==null?0:sumArray.length;
+        if(sumFlag){
+            if(sumCount<=0||(typeCount>0&&typeCount!=sumCount)||(titleCount>0&&titleCount!=sumCount)){
+                throw new RuntimeException("标题行数据/求和行数据/行数据类型初始化长度不一致!"); 
+            }
+        }else {
+            if(typeCount>0&&titleCount>0&&typeCount!=titleCount){
+                throw new RuntimeException("标题行数据/求和行数据/行数据类型初始化长度不一致!"); 
+            }
+        }
+        
+        if (StringUtils.isBlank(sheetName)) {
+            sheetName = sheetNameDefaule;
+        }
+        if (StringUtils.isBlank(filePath)) {
+            filePath = filePathDefaule;
+        }
+        String finalName = DateTimeUtil.formatDate2Str(new Date(), DateTimeUtil.DATE_TIME_PATTON_3) + ".xlsx";
+        if (StringUtils.isNoneBlank(fileName)) {
+            finalName = filePath + File.separator + fileName + "-" + finalName;
+        } else {
+            finalName = filePath + File.separator + finalName;
+        }
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info("生成的最终文件全路径信息为:{}", finalName);
+        }
+        
+        SXSSFWorkbook workbook = new SXSSFWorkbook(500);
+        //设置表格样式
+        setXSSFExcelStyle(workbook);
+        // Sheet sheet = wb.createSheet(sheetName);
+        Sheet sheet = workbook.getSheet(sheetName);
+        if (sheet == null) {
+            sheet = workbook.createSheet(sheetName);
+            LOGGER.info("不存在sheet,新创建!");
+        } else {
+            LOGGER.info("已经存在sheet了,直接使用!");
+        }
+        
+        //创建标题行
+        createTitleRow(titleArray, workbook, sheet);
+        //创建内容行
+        createContentRows(contentArrayList, typeArray,workbook, sheet);
+        if (sumFlag) {
+            //创建求和行
+            createSumRow(sumArray, workbook, sheet);
+        }
+        
+        //FileOutputStream fileOut = null;
+        ByteArrayOutputStream fileOut = null;
+        try {
+            //fileOut = new FileOutputStream(finalName);
+            fileOut = new ByteArrayOutputStream();
+            workbook.write(fileOut);
+            fileOut.flush();
+            if (LOGGER.isInfoEnabled()) {
+                LOGGER.info("导出excel文件正常结束!");
+            }
+        } catch (IOException e) {
+            LOGGER.error("导出excel文件异常!",e);
+        } finally {
+            try {
+                if(null!=fileOut){
+                    fileOut.close();
+                }
+            } catch (IOException e) {
+                LOGGER.error("关闭管道流fileOut信息异常!",e);
+            }
+        }
+        return fileOut;
     }
 
     /**
@@ -421,6 +525,101 @@ public class FileWriterUtils2 {
         dateStyle.setAlignment(CellStyle.ALIGN_LEFT);
         dateStyle.setVerticalAlignment(CellStyle.VERTICAL_CENTER);
     }
+    
+    /**
+     * 封装下载信息头格式对象
+     */
+    public static ResponseEntity<byte[]> fillDownloadFileInfo(String fileName, String fileFullPath) {
+        HttpHeaders headers =new HttpHeaders();
+        ByteArrayOutputStream baOutput = new ByteArrayOutputStream();
+        //封装具体的文件流信息即可
+        //byte[] byteArray =new byte[]{};
+        try {
+            File localFile = new File(fileFullPath);
+            //byteArray = FileCopyUtils.copyToByteArray(localFile);
+            //这里不必处理IO流关闭的问题，因为FileUtils.copyInputStreamToFile()方法内部会自动把用到的IO流关掉
+//            FileUtils.copyURLToFile(source, destination); TODO
+            org.apache.commons.io.FileUtils.copyFile(localFile, baOutput);
+//            FileCopyUtils.copy(FileCopyUtils.copyToByteArray(localFile), baOutput);
+            //byteArray = baOutput.toByteArray();
+            
+            //获取文件类型 TODO
+            String contentType = Files.probeContentType(Paths.get(localFile.toURI()));
+            String suffix = fileFullPath.substring(fileFullPath.lastIndexOf("."));
+            switch (contentType) {
+            case IMAGE_PNG_VALUE:
+                suffix=".png";
+                break;
+            case IMAGE_JPEG_VALUE:
+                suffix=".jpg";
+                break;
+            case IMAGE_GIF_VALUE:
+                suffix=".gif";
+                break;
+            case APPLICATION_PDF_VALUE:
+                suffix=".pdf";
+                break;
+            case "application/x-zip-compressed":
+                suffix=".zip";
+                break;
+            default:
+                //suffix="";
+                break;
+            }
+            if(!StringUtils.contains(fileName, suffix)){
+                fileName+=suffix;
+            }
+            headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+            headers.setContentDispositionFormData("attachment", new String((fileName).getBytes("UTF-8"), "iso-8859-1"));
+        } catch (UnsupportedEncodingException e) {
+            LOGGER.error("导出文件,设置头信息编码方式异常!",e);
+        }catch (Exception e) {
+            LOGGER.error("导出文件,拷贝文件流异常!",e);
+        }finally{
+             if(null!=baOutput){
+             try {
+             baOutput.close();
+             } catch (IOException e) {
+             LOGGER.error("导出文件,关闭文件流异常!",e);
+             }
+             }
+        }
+
+        return new ResponseEntity<byte[]>(baOutput.toByteArray(), headers, HttpStatus.CREATED);
+//        return new ResponseEntity<byte[]>(byteArray, headers, HttpStatus.CREATED);
+    }
+    
+    /**
+     * 封装下载信息头格式对象
+     */
+    public static ResponseEntity<byte[]> fillDownloadStreamInfo(String fileName, ByteArrayOutputStream outputStream,String suffix) {
+        HttpHeaders headers =new HttpHeaders();
+//        ByteArrayOutputStream baOutput = new ByteArrayOutputStream();
+        //封装具体的文件流信息即可
+        try {
+            if(!StringUtils.contains(fileName, suffix)){
+                fileName+=suffix;
+            }
+            headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+            headers.setContentDispositionFormData("attachment", new String((fileName).getBytes("UTF-8"), "iso-8859-1"));
+        } catch (UnsupportedEncodingException e) {
+            LOGGER.error("导出文件,设置头信息编码方式异常!",e);
+        }catch (Exception e) {
+            LOGGER.error("导出文件,拷贝文件流异常!",e);
+        }finally{
+//            if(null!=baOutput){
+//                try {
+//                    baOutput.close();
+//                } catch (IOException e) {
+//                    LOGGER.error("导出文件,关闭文件流异常!",e);
+//                }
+//            }
+        }
+        
+        return new ResponseEntity<byte[]>(outputStream.toByteArray(), headers, HttpStatus.CREATED);
+//        return new ResponseEntity<byte[]>(byteArray, headers, HttpStatus.CREATED);
+    }
+
     
     public static void setFilePathDefaule(String filePathDefaule) {
         FileWriterUtils2.filePathDefaule = filePathDefaule;
