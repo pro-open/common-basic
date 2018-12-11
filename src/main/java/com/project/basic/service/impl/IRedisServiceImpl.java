@@ -1,4 +1,4 @@
-package com.project.basic.service;
+package com.project.basic.service.impl;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,6 +20,8 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.CollectionUtils;
+
+import com.project.basic.service.IRedisService;
 
 @Repository("iRedisService")
 @SuppressWarnings({"unchecked","rawtypes"})

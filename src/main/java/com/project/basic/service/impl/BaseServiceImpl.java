@@ -1,4 +1,4 @@
-package com.project.basic.service;
+package com.project.basic.service.impl;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
@@ -29,6 +29,8 @@ import com.github.pagehelper.PageHelper;
 import com.project.basic.dao.entity.BaseEntity;
 import com.project.basic.dao.entity.Cacheable;
 import com.project.basic.exception.BaseServiceException;
+import com.project.basic.service.BaseService;
+import com.project.basic.service.IRedisService;
 import com.project.basic.utils.Constants;
 import com.project.basic.utils.DateTimeUtil;
 import com.project.basic.utils.MyMapper;

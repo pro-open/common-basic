@@ -12,6 +12,11 @@ public abstract class Constants {
     public static final String TRUE = "true";
     public static final String FALSE = "false";
     
+    /**
+     * 默认的编码集
+     */
+    public static final String DEFAULT_CHARSET = "UTF-8";
+    
     /**批量阀值*/
     public static final int PAGE_INDEX = 0;
     public static final int PAGE_INDEX_MAX = 20;

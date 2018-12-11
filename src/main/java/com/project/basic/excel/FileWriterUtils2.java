@@ -59,7 +59,7 @@ import com.project.basic.utils.DateTimeUtil;
 public class FileWriterUtils2 {
     private static final Logger LOGGER = LoggerFactory.getLogger(FileWriterUtils2.class);
 
-    public static String filePathDefaule = "D:\\mytemp\\";
+    public static String filePathDefaule = "D:\\mytemp\\";//默认目录
     public static String sheetNameDefaule = "DefauleSheet";
 
     // 标题样式/字体
