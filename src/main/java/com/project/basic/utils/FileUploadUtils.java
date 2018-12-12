@@ -119,10 +119,10 @@ public class FileUploadUtils {
 	            File localFile = new File(fileLocalPath);
 
                 Map<String,String> paramMap=new HashMap<>();
-                paramMap.put("fileUrl", "");
                 paramMap.put("formName", formName);
                 paramMap.put("size", String.valueOf(size));
                 paramMap.put("fileLocalName", fileLocalName);
+                paramMap.put("fileUrl", fileLocalName.replaceAll("/usr/local/data/upload", ""));
                 
                 paramMap.put("fileShowName", fileOrgiName);
                 paramMap.put("contentType", contentType);

@@ -592,12 +592,17 @@ public class FileWriterUtils2 {
     /**
      * 封装下载信息头格式对象
      */
+    @Deprecated
     public static ResponseEntity<byte[]> fillDownloadStreamInfo(String fileName, ByteArrayOutputStream outputStream,String suffix) {
+        return fillDownloadStreamInfo(fileName, outputStream.toByteArray(), suffix);
+    }
+    
+    public static ResponseEntity<byte[]> fillDownloadStreamInfo(String fileName, byte[] byteBuffer,String suffix) {
         HttpHeaders headers =new HttpHeaders();
 //        ByteArrayOutputStream baOutput = new ByteArrayOutputStream();
         //封装具体的文件流信息即可
         try {
-            if(!StringUtils.contains(fileName, suffix)){
+            if(!StringUtils.contains(fileName, suffix)&&StringUtils.isNoneBlank(suffix)){
                 fileName+=suffix;
             }
             headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
@@ -616,8 +621,8 @@ public class FileWriterUtils2 {
 //            }
         }
         
-        return new ResponseEntity<byte[]>(outputStream.toByteArray(), headers, HttpStatus.CREATED);
-//        return new ResponseEntity<byte[]>(byteArray, headers, HttpStatus.CREATED);
+        return new ResponseEntity<byte[]>(byteBuffer, headers, HttpStatus.CREATED);
+//        return new ResponseEntity<byte[]>(byteBuffer, headers, HttpStatus.CREATED);
     }
 
     

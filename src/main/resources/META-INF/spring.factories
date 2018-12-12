@@ -1,2 +1,3 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-com.project.basic.conf.ApplicationContextUtils
+com.project.basic.conf.ApplicationContextUtils,\
+com.project.basic.aop.LogRecordAspect

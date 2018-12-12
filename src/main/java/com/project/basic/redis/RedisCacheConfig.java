@@ -1,7 +1,13 @@
 package com.project.basic.redis;
 
+import java.time.Duration;
+
+import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.cache.RedisCacheConfiguration;
+import org.springframework.data.redis.cache.RedisCacheManager;
+import org.springframework.data.redis.cache.RedisCacheWriter;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
@@ -49,6 +55,31 @@ public class RedisCacheConfig {
         redisTemplate.setValueSerializer(stringSerializer);
         redisTemplate.afterPropertiesSet();
         return redisTemplate;
+    }
+    
+//    /*
+//     * springboot1.x
+//     */
+//    @Bean
+//    public CacheManager cacheManager(RedisTemplate redisTemplate) {
+//        RedisCacheManager cacheManager= new RedisCacheManager(redisTemplate);
+//        cacheManager.setDefaultExpiration(60);
+//        Map<String,Long> expiresMap=new HashMap<>();
+//        expiresMap.put("Product",5L);
+//        cacheManager.setExpires(expiresMap);
+//        return cacheManager;
+//    }
+    
+    /*
+     * springboot2.x
+     */
+    @Bean
+    public CacheManager cacheManager(RedisConnectionFactory redisConnectionFactory) {
+        RedisCacheConfiguration redisCacheConfiguration = RedisCacheConfiguration.defaultCacheConfig()
+                .entryTtl(Duration.ofHours(1)); // 设置缓存有效期一小时
+                //.entryTtl(Duration.ofSeconds(3600)); 
+        return RedisCacheManager.builder(RedisCacheWriter.nonLockingRedisCacheWriter(redisConnectionFactory))
+                .cacheDefaults(redisCacheConfiguration).build();
     }
 
 }

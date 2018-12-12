@@ -71,7 +71,6 @@ public abstract class BaseServiceImpl<T extends BaseEntity> implements BaseServi
     }
     
     @Override
-//    @Transactional(propagation=Propagation.REQUIRED,readOnly = true)
     public List<T> selectAll() {
         return myMapper.selectAll();
     }
@@ -105,7 +104,6 @@ public abstract class BaseServiceImpl<T extends BaseEntity> implements BaseServi
     }
 
     @Override
-//    @Transactional(propagation=Propagation.REQUIRED,readOnly = true)
     public T selectByPrimaryKey(Long id) {
         if(LOGGER.isDebugEnabled()){
             LOGGER.debug("查询条件信息为:{}",JSON.toJSONString(id));
@@ -114,7 +112,6 @@ public abstract class BaseServiceImpl<T extends BaseEntity> implements BaseServi
     }
 
     @Override
-//    @Transactional(propagation=Propagation.REQUIRED,readOnly = true)
     public T selectByCode(String code) {
         try {
             T record = entityClass.newInstance();
@@ -127,7 +124,6 @@ public abstract class BaseServiceImpl<T extends BaseEntity> implements BaseServi
     }
 
     @Override
-//    @Transactional(propagation=Propagation.REQUIRED,readOnly = true)
     public List<T> selectListByPage(T record, Integer pageIndex, Integer pageSize) {
         if(LOGGER.isDebugEnabled()){
             LOGGER.debug("查询条件信息:pageIndex为:{},pageSize为:{}",pageIndex,pageSize);
@@ -206,7 +202,6 @@ public abstract class BaseServiceImpl<T extends BaseEntity> implements BaseServi
     }
     
     @Override
-//    @Transactional(propagation=Propagation.REQUIRED,readOnly = true)
     public List<T> selectByExampleAndRowBounds(Example example, Integer pageIndex, Integer pageSize) {
         if(LOGGER.isDebugEnabled()){
             LOGGER.debug("查询条件信息:pageIndex为:{},pageSize为:{}",pageIndex,pageSize);
@@ -216,7 +211,6 @@ public abstract class BaseServiceImpl<T extends BaseEntity> implements BaseServi
     }
     
     @Override
-//    @Transactional(propagation=Propagation.REQUIRED,readOnly = true)
     public List<T> selectByCreateDateBetween(Date createDateBegin,Date createDateEnd) {
         if(LOGGER.isDebugEnabled()){
             LOGGER.debug("查询条件信息:createDateBegin为:{},createDateEnd为:{}",createDateBegin,createDateEnd);
@@ -325,7 +319,7 @@ public abstract class BaseServiceImpl<T extends BaseEntity> implements BaseServi
     }
 
     @Override
-    @Transactional(propagation=Propagation.REQUIRED,rollbackFor=Exception.class,readOnly = false)
+    //@Transactional(propagation=Propagation.REQUIRED,rollbackFor=Exception.class,readOnly = false)
     public Integer insert(T record) {
         if(LOGGER.isDebugEnabled()){
             LOGGER.debug("插入条件信息为:{}",JSON.toJSONString(record));
@@ -389,7 +383,7 @@ public abstract class BaseServiceImpl<T extends BaseEntity> implements BaseServi
     }
 
     @Override
-    @Transactional(propagation=Propagation.REQUIRED,rollbackFor=Exception.class,readOnly = false)
+    //@Transactional(propagation=Propagation.REQUIRED,rollbackFor=Exception.class,readOnly = false)
     public Integer updateByPrimaryKey(T record) {
         if(LOGGER.isDebugEnabled()){
             LOGGER.debug("更新条件信息为:{}",JSON.toJSONString(record));
@@ -417,7 +411,7 @@ public abstract class BaseServiceImpl<T extends BaseEntity> implements BaseServi
     }
 
     @Override
-    @Transactional(propagation=Propagation.REQUIRED,rollbackFor=Exception.class,readOnly = false)
+    //@Transactional(propagation=Propagation.REQUIRED,rollbackFor=Exception.class,readOnly = false)
     public Integer updateByPrimaryKeySelective(T record) {
         if(LOGGER.isDebugEnabled()){
             LOGGER.debug("更新条件信息为:{}",JSON.toJSONString(record));
@@ -445,7 +439,7 @@ public abstract class BaseServiceImpl<T extends BaseEntity> implements BaseServi
     }
 
     @Override
-    @Transactional(propagation=Propagation.REQUIRED,rollbackFor=Exception.class,readOnly = false)
+    //@Transactional(propagation=Propagation.REQUIRED,rollbackFor=Exception.class,readOnly = false)
     public Integer updateByCode(T record) {
         if(LOGGER.isDebugEnabled()){
             LOGGER.debug("更新条件信息为:{}",JSON.toJSONString(record));
@@ -661,7 +655,7 @@ public abstract class BaseServiceImpl<T extends BaseEntity> implements BaseServi
     }
 
     @Override
-    @Transactional(propagation=Propagation.REQUIRED,rollbackFor=Exception.class,readOnly = false)
+    //@Transactional(propagation=Propagation.REQUIRED,rollbackFor=Exception.class,readOnly = false)
     public Integer updateByCodeSelective(T record) {
         String code=record.getCode();
         if(LOGGER.isDebugEnabled()){
@@ -693,7 +687,7 @@ public abstract class BaseServiceImpl<T extends BaseEntity> implements BaseServi
     }
 
     @Override
-    @Transactional(propagation=Propagation.REQUIRED,rollbackFor=Exception.class,readOnly = false)
+    //@Transactional(propagation=Propagation.REQUIRED,rollbackFor=Exception.class,readOnly = false)
     public Integer deleteByPrimaryKey(Long id) {
         Integer result = 0;
         try {
@@ -715,7 +709,7 @@ public abstract class BaseServiceImpl<T extends BaseEntity> implements BaseServi
     }
     
     @Override
-    @Transactional(propagation=Propagation.REQUIRED,rollbackFor=Exception.class,readOnly = false)
+    //@Transactional(propagation=Propagation.REQUIRED,rollbackFor=Exception.class,readOnly = false)
     public Integer deleteByPrimaryKeys(Long[] ids) {
         if(ArrayUtils.isEmpty(ids)){
             return 0;
@@ -728,8 +722,7 @@ public abstract class BaseServiceImpl<T extends BaseEntity> implements BaseServi
             Example example = new Example(entityClass);
             example.createCriteria()
                         .andIn("id", Arrays.asList(ids))
-                        .andEqualTo("delFlag", Boolean.FALSE)
-                        ;
+                        .andEqualTo("delFlag", Boolean.FALSE) ;
             result = myMapper.updateByExampleSelective(record, example);
             return result;
         } catch (Exception e) {
@@ -739,7 +732,7 @@ public abstract class BaseServiceImpl<T extends BaseEntity> implements BaseServi
     }
 
     @Override
-    @Transactional(propagation=Propagation.REQUIRED,rollbackFor=Exception.class,readOnly = false)
+    //@Transactional(propagation=Propagation.REQUIRED,rollbackFor=Exception.class,readOnly = false)
     public Integer deleteByCode(String code) {
         try {
             Example example = new Example(entityClass);
