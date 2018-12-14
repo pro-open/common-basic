@@ -110,7 +110,7 @@ public class FileUploadUtils {
 	            String fileLocalName=fileOrgiName;
 	            int suffixIndex=-1;
 	            if((suffixIndex=fileOrgiName.lastIndexOf("."))>=0){
-	                fileLocalName=UUIDGenerator.generate()+fileOrgiName.substring(suffixIndex);
+	                //fileLocalName=UUIDGenerator.generate()+fileOrgiName.substring(suffixIndex);
 	            }
 	            String fileLocalPath = uploadPath+subPath+fileLocalName;
 	            if(LOGGER.isInfoEnabled()){
@@ -122,7 +122,7 @@ public class FileUploadUtils {
                 paramMap.put("formName", formName);
                 paramMap.put("size", String.valueOf(size));
                 paramMap.put("fileLocalName", fileLocalName);
-                paramMap.put("fileUrl", fileLocalName.replaceAll("/usr/local/data/upload", ""));
+                paramMap.put("fileUrl", subPath+ fileLocalName);
                 
                 paramMap.put("fileShowName", fileOrgiName);
                 paramMap.put("contentType", contentType);
