@@ -29,7 +29,7 @@ public class DateTimeUtil {
 	public static final String DATE_PATTON_1 = "yyyy-MM-dd";
 	public static final String DATE_PATTON_2 = "yyyy/MM/dd";
 	public static final String DATE_PATTON_3 = "yyyyMMdd";
-	public static final String DATE_PATTON_4 = "yyyyMMdd";
+	public static final String DATE_PATTON_4 = "yyMMdd";
 	public static final String DATE_PATTON_5 = "yyyy";
 	public static final String DATE_TIME_PATTON_1 = "yyyy-MM-dd HH:mm:ss";
 	public static final String DATE_TIME_PATTON_2 = "yyyy/MM/dd HH:mm:ss";

@@ -181,8 +181,20 @@ public interface BaseService<T> {
      */
     String generateSerialNumber(String projectKey, String redisKey);
     
+    /**
+     * 获取当前全局的自增序列号
+     * 
+     * @param projectKey
+     * @param redisKey
+     * @return
+     */
+    String getSerialNumber(String projectKey, String redisKey, Integer length);
+    
+    String getSerialNumber(String projectKey, String redisKey);
+    
     String generateSerialNumber(String projectKey, String redisKey, Integer length);
 
     Example makeExample(Map<String, String> paramMap);
+
 
 }

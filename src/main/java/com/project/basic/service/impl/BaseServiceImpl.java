@@ -56,7 +56,7 @@ public abstract class BaseServiceImpl<T extends BaseEntity> implements BaseServi
     @SuppressWarnings("rawtypes")
     private IRedisService iRedisService;
     
-    @Value("${serial.number.length:6}")
+    @Value("${serial.number.length:3}")
     private int serialNumberLength;
     
     @Value("${redis.cache.prefix:dev}")
@@ -771,7 +771,26 @@ public abstract class BaseServiceImpl<T extends BaseEntity> implements BaseServi
             cacheKey+=":"+redisKey;
         }
         Long serialNumber = iRedisService.incrementBy(cacheKey);
-        return projectKey+DateTimeUtil.formatDay()+formatSerialNumber(serialNumber,length);
+        return projectKey+DateTimeUtil.formatDate2Str(DateTimeUtil.DATE_PATTON_4)+formatSerialNumber(serialNumber,length);
+    }
+    
+    @Override
+    public synchronized String getSerialNumber(String projectKey,String redisKey) {
+        return getSerialNumber(projectKey, redisKey, 3);
+    }
+    
+    @Override
+    public synchronized String getSerialNumber(String projectKey,String redisKey,Integer length) {
+        if(StringUtils.isBlank(projectKey)){
+            return null;
+        }
+        String cacheKey=cachePrefix+":"+projectKey;
+        if(StringUtils.isNoneBlank(redisKey)){
+            cacheKey+=":"+redisKey;
+        }
+        String string = iRedisService.getString(cacheKey);
+        Long serialNumber = StringUtils.isBlank(string)?0:Long.valueOf(string);
+        return projectKey+DateTimeUtil.formatDate2Str(DateTimeUtil.DATE_PATTON_4)+formatSerialNumber(serialNumber,length);
     }
     
     /**
@@ -829,7 +848,7 @@ public abstract class BaseServiceImpl<T extends BaseEntity> implements BaseServi
         return records;
     }
 
-    protected <V> V copyProperties(V dest, Object orig) {
+    protected <V> void copyProperties(V dest, Object orig) {
         try {
             BeanUtils.copyProperties(dest,orig);
         } catch (IllegalAccessException e) {
@@ -844,7 +863,7 @@ public abstract class BaseServiceImpl<T extends BaseEntity> implements BaseServi
                 LOGGER.debug("属性拷贝方法转换非空实体结果为:{}",JSON.toJSONString(dest));
             }
         }
-        return dest;
+        //return dest;
     }
     
     /**
