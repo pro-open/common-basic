@@ -54,13 +54,13 @@ public abstract class BaseServiceImpl<T extends BaseEntity> implements BaseServi
     
     @Resource(name="iRedisService")
     @SuppressWarnings("rawtypes")
-    private IRedisService iRedisService;
+    protected IRedisService iRedisService;
     
     @Value("${serial.number.length:3}")
     private int serialNumberLength;
     
     @Value("${redis.cache.prefix:dev}")
-    private String cachePrefix;
+    protected String cachePrefix;
     
     @SuppressWarnings("unchecked")
     public BaseServiceImpl(final MyMapper<T> myMapper ) {
@@ -758,7 +758,7 @@ public abstract class BaseServiceImpl<T extends BaseEntity> implements BaseServi
      */
     @Override
     public synchronized String generateSerialNumber(String projectKey,String redisKey) {
-        return generateSerialNumber(projectKey, redisKey, null);
+        return generateSerialNumber(projectKey, redisKey, serialNumberLength);
     }
     
     @Override
@@ -776,7 +776,7 @@ public abstract class BaseServiceImpl<T extends BaseEntity> implements BaseServi
     
     @Override
     public synchronized String getSerialNumber(String projectKey,String redisKey) {
-        return getSerialNumber(projectKey, redisKey, 3);
+        return getSerialNumber(projectKey, redisKey, serialNumberLength);
     }
     
     @Override
@@ -796,7 +796,7 @@ public abstract class BaseServiceImpl<T extends BaseEntity> implements BaseServi
     /**
      * 当前设置位数为8位数
      */
-    private String formatSerialNumber(Long serialNumber,Integer length) {
+    protected String formatSerialNumber(Long serialNumber,Integer length) {
         if(serialNumber ==null||serialNumber<0){
             serialNumber=0L;
         }
