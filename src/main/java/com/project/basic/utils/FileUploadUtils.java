@@ -82,7 +82,7 @@ public class FileUploadUtils {
 	public static List<Map<String,String>> uploadMultipartFileListMap(MultipartFile[] files,String uploadPath){
 	    List<Map<String,String>> resultMapList = new ArrayList<>();
 	    for(MultipartFile file : files){
-	        if(file==null||file.isEmpty()){
+	        if(file==null/*||file.isEmpty()*/){
 	            return resultMapList;
 	        }else {
 	            //文件名称,上传form的name属性
@@ -108,7 +108,8 @@ public class FileUploadUtils {
 	            //pathList.add(serverPath+subPath+originalFileName);
 	            //生成新的不重复的文件名，仅用于保存使用
 	            String fileLocalName=fileOrgiName;
-	            int suffixIndex=-1;
+	            @SuppressWarnings("unused")
+                int suffixIndex=-1;
 	            if((suffixIndex=fileOrgiName.lastIndexOf("."))>=0){
 	                //fileLocalName=UUIDGenerator.generate()+fileOrgiName.substring(suffixIndex);
 	            }
