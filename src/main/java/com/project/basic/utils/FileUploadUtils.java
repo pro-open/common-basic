@@ -108,10 +108,10 @@ public class FileUploadUtils {
 	            //pathList.add(serverPath+subPath+originalFileName);
 	            //生成新的不重复的文件名，仅用于保存使用
 	            String fileLocalName=fileOrgiName;
-	            @SuppressWarnings("unused")
                 int suffixIndex=-1;
 	            if((suffixIndex=fileOrgiName.lastIndexOf("."))>=0){
 	                //fileLocalName=UUIDGenerator.generate()+fileOrgiName.substring(suffixIndex);
+	                fileLocalName=fileOrgiName.substring(0,suffixIndex)+DateTimeUtil.formatDate2Str(DateTimeUtil.DATE_TIME_PATTON_3)+fileOrgiName.substring(suffixIndex);
 	            }
 	            String fileLocalPath = uploadPath+subPath+fileLocalName;
 	            if(LOGGER.isInfoEnabled()){

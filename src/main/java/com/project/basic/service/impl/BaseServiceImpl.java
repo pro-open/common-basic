@@ -116,6 +116,7 @@ public abstract class BaseServiceImpl<T extends BaseEntity> implements BaseServi
         try {
             T record = entityClass.newInstance();
             record.setCode(code);
+            record.setDelFlag(Boolean.FALSE);
             return myMapper.selectOne(record);
         } catch (InstantiationException | IllegalAccessException e) {
             LOGGER.error("查询方法selectByCode:[{}]异常:{}",code,e);
@@ -134,6 +135,7 @@ public abstract class BaseServiceImpl<T extends BaseEntity> implements BaseServi
             orderBy=" ID DESC";
         }
         PageHelper.startPage(pageIndex, pageSize,orderBy); 
+        record.setDelFlag(Boolean.FALSE);
         return myMapper.selectByRowBounds(record, makeRowBounds(pageIndex, pageSize));
     }
     

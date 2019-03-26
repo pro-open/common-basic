@@ -41,7 +41,7 @@ public abstract class BaseEntity extends ToString {
      * 删除标记位0,未删除,1,删除
      */
     @Column(name = "del_flag")
-    private Boolean delFlag;
+    private Boolean delFlag=Boolean.FALSE;
     /**
      * 简单描述信息
      */
