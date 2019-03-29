@@ -22,7 +22,10 @@ public class NumberFormatUtil {
     }
 
     // 2、使用 DecimalFormat 对象的 format()方法
-    public static String userDecimalFormat(double n,int scale) {
+    public static String userDecimalFormat(BigDecimal number,int scale) {
+        if(number==null){
+            number=BigDecimal.ZERO;
+        }
         if(scale<0){
             scale=0;
         }
@@ -31,8 +34,19 @@ public class NumberFormatUtil {
             str+="0";
         }
         DecimalFormat decimalFormat = new DecimalFormat("#."+str);
-        return decimalFormat.format(n);
+        return decimalFormat.format(number);
     }
+//    public static String userDecimalFormat(double n,int scale) {
+//        if(scale<0){
+//            scale=0;
+//        }
+//        String str="";
+//        while(str.length()<scale){
+//            str+="0";
+//        }
+//        DecimalFormat decimalFormat = new DecimalFormat("#."+str);
+//        return decimalFormat.format(n);
+//    }
 
     // 3、使用 BigDecimal 对象的 setScale()方法
     public static double userBigDecimal(double n,int scale) {
@@ -65,7 +79,7 @@ public class NumberFormatUtil {
         double n=3.5698000;
         int scale=5;
         System.out.println(userString(n,scale));
-        System.out.println(userDecimalFormat(n,scale));
+        System.out.println(userDecimalFormat(BigDecimal .valueOf(n),scale));
         System.out.println(userBigDecimal(n,scale));
         System.out.println(userNumberFormat(n,scale));
         scale=5;
