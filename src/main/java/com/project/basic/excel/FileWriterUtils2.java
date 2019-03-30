@@ -487,7 +487,8 @@ public class FileWriterUtils2 {
         contentStyle.setBorderBottom(CellStyle.BORDER_THIN);
         contentStyle.setBorderLeft(CellStyle.BORDER_THIN);
         contentStyle.setBorderRight(CellStyle.BORDER_THIN);
-        contentStyle.setAlignment(CellStyle.ALIGN_LEFT);
+        //contentStyle.setAlignment(CellStyle.ALIGN_LEFT);
+        contentStyle.setAlignment(CellStyle.ALIGN_CENTER);
         contentStyle.setVerticalAlignment(CellStyle.VERTICAL_CENTER);
         
         // sum行列样式
