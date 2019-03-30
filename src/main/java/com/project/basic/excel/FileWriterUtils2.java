@@ -453,9 +453,10 @@ public class FileWriterUtils2 {
         titleStyle.setFont(titleFont);
 
         // 设置背景色
-        titleStyle.setFillForegroundColor(IndexedColors.YELLOW.getIndex());
+        //titleStyle.setFillForegroundColor(IndexedColors.YELLOW.getIndex());
         // 自动换行
-        titleStyle.setWrapText(false);
+        //titleStyle.setWrapText(false);
+        titleStyle.setWrapText(true);
         // 设置边框
         titleStyle.setFillPattern(CellStyle.SOLID_FOREGROUND);
         titleStyle.setAlignment(CellStyle.ALIGN_CENTER);

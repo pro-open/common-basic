@@ -101,19 +101,24 @@ public class FileUploadUtils {
 	            //String realPath = PropertityUtils.getContextProperty(uploadPath);
 	            // 按照日期,生成子目录信息
 	            //String subPath = "/"+DatetimeUtils.currentDateStr()+"/"+File.pathSeparator;
-	            String subPath = File.separator+DateTimeUtil.formatDate2Str(DateTimeUtil.DATE_PATTON_3)+File.separator;
+	            @SuppressWarnings("unused")
+                String subPath = File.separator+DateTimeUtil.formatDate2Str(DateTimeUtil.DATE_PATTON_3);
 	            //originalFileName=DatetimeUtils.currentTimestampStr()+"_"+originalFileName;
 	            //保存文件的本地全路径信息
 	            //全部访问路径
 	            //pathList.add(serverPath+subPath+originalFileName);
 	            //生成新的不重复的文件名，仅用于保存使用
 	            String fileLocalName=fileOrgiName;
+                @SuppressWarnings("unused")
                 int suffixIndex=-1;
 	            if((suffixIndex=fileOrgiName.lastIndexOf("."))>=0){
 	                //fileLocalName=UUIDGenerator.generate()+fileOrgiName.substring(suffixIndex);
-	                fileLocalName=fileOrgiName.substring(0,suffixIndex)+DateTimeUtil.formatDate2Str(DateTimeUtil.DATE_TIME_PATTON_3)+fileOrgiName.substring(suffixIndex);
+	                //fileLocalName=fileOrgiName.substring(0,suffixIndex)+DateTimeUtil.formatDate2Str(DateTimeUtil.DATE_TIME_PATTON_3)+fileOrgiName.substring(suffixIndex);
 	            }
-	            String fileLocalPath = uploadPath+subPath+fileLocalName;
+//	            if(!uploadPath.endsWith(File.separator)){
+//	                uploadPath+=File.separator;
+//	            }
+	            String fileLocalPath = uploadPath+/*subPath+*/File.separator+fileLocalName;
 	            if(LOGGER.isInfoEnabled()){
 	                LOGGER.info("文件上传,拷贝文件结束,生成的文件全路径为:{}",fileLocalPath);
 	            }
@@ -123,7 +128,7 @@ public class FileUploadUtils {
                 paramMap.put("formName", formName);
                 paramMap.put("size", String.valueOf(size));
                 paramMap.put("fileLocalName", fileLocalName);
-                paramMap.put("fileUrl", subPath+ fileLocalName);
+                //paramMap.put("fileUrl", subPath+ fileLocalName);
                 
                 paramMap.put("fileShowName", fileOrgiName);
                 paramMap.put("contentType", contentType);
