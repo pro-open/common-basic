@@ -35,14 +35,16 @@ import redis.clients.jedis.JedisPoolConfig;
 @Configuration
 public class RedisCacheConfig {
     
-    @Value("${spring.redis.host}")
+    @Value("${spring.redis.host:localhost}")
     private String host;
-    @Value("${spring.redis.port}")
+    @Value("${spring.redis.port:6379}")
     private int port;
-    @Value("${spring.redis.password}")
+    @Value("${spring.redis.password:}")
     private String password;
-    @Value("${spring.redis.timeout}")
+    @Value("${spring.redis.timeout:6000}")
     private int timeout;
+    @Value("${spring.session.redis.timeout:1800}")
+    private int sessionTimeout;
 
     @Bean
     public JedisPool redisPoolFactory() {
@@ -99,8 +101,8 @@ public class RedisCacheConfig {
     @Bean
     public CacheManager cacheManager(RedisConnectionFactory redisConnectionFactory) {
         RedisCacheConfiguration redisCacheConfiguration = RedisCacheConfiguration.defaultCacheConfig()
-                .entryTtl(Duration.ofHours(24)); // 设置缓存有效期24小时
-                //.entryTtl(Duration.ofSeconds(3600)); 
+                //.entryTtl(Duration.ofHours(24)); // 设置缓存有效期24小时
+                .entryTtl(Duration.ofSeconds(sessionTimeout)); 
         return RedisCacheManager.builder(RedisCacheWriter.nonLockingRedisCacheWriter(redisConnectionFactory))
                 .cacheDefaults(redisCacheConfiguration).build();
     }
