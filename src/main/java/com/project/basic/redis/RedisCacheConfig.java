@@ -43,8 +43,8 @@ public class RedisCacheConfig {
     private String password;
     @Value("${spring.redis.timeout:6000}")
     private int timeout;
-    @Value("${spring.session.redis.timeout:1800}")
-    private int sessionTimeout;
+    @Value("${spring.data.redis.timeout:86400}")
+    private int dataTimeout;
 
     @Bean
     public JedisPool redisPoolFactory() {
@@ -97,12 +97,14 @@ public class RedisCacheConfig {
     
     /*
      * springboot2.x
+     * 
+     * sessionTimeout:设置公共缓存的有效时间
      */
     @Bean
     public CacheManager cacheManager(RedisConnectionFactory redisConnectionFactory) {
         RedisCacheConfiguration redisCacheConfiguration = RedisCacheConfiguration.defaultCacheConfig()
                 //.entryTtl(Duration.ofHours(24)); // 设置缓存有效期24小时
-                .entryTtl(Duration.ofSeconds(sessionTimeout)); 
+                .entryTtl(Duration.ofSeconds(dataTimeout)); 
         return RedisCacheManager.builder(RedisCacheWriter.nonLockingRedisCacheWriter(redisConnectionFactory))
                 .cacheDefaults(redisCacheConfiguration).build();
     }
