@@ -481,8 +481,6 @@ public class FileWriterUtils2 {
         // 设置背景色
         XSSFColor xssfColor = new XSSFColor(new Color(220, 230, 241));
         contentStyle.setFillForegroundColor(xssfColor.getIndexed());
-        // 自动换行
-        contentStyle.setWrapText(false);
         contentStyle.setBorderTop(CellStyle.BORDER_THIN);
         contentStyle.setBorderBottom(CellStyle.BORDER_THIN);
         contentStyle.setBorderLeft(CellStyle.BORDER_THIN);
@@ -490,7 +488,7 @@ public class FileWriterUtils2 {
         //contentStyle.setAlignment(CellStyle.ALIGN_LEFT);
         contentStyle.setAlignment(CellStyle.ALIGN_CENTER);
         contentStyle.setVerticalAlignment(CellStyle.VERTICAL_CENTER);
-        //设置接收换行操作,换行符号为"\n"
+        // 自动换行,设置接收换行操作,换行符号为"\n"
         contentStyle.setWrapText(true);
         
         // sum行列样式
