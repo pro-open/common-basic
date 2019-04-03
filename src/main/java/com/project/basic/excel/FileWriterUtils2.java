@@ -490,6 +490,8 @@ public class FileWriterUtils2 {
         //contentStyle.setAlignment(CellStyle.ALIGN_LEFT);
         contentStyle.setAlignment(CellStyle.ALIGN_CENTER);
         contentStyle.setVerticalAlignment(CellStyle.VERTICAL_CENTER);
+        //设置接收换行操作,换行符号为"\n"
+        contentStyle.setWrapText(true);
         
         // sum行列样式
         sumFont = workBook.createFont();
