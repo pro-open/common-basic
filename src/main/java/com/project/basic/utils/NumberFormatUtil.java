@@ -26,6 +26,9 @@ public class NumberFormatUtil {
         if(number==null){
             number=BigDecimal.ZERO;
         }
+        if(BigDecimal.ZERO.equals(number)){
+            return "0";
+        }
         if(scale<0){
             scale=0;
         }
