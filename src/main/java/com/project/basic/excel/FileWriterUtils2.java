@@ -495,6 +495,7 @@ public class FileWriterUtils2 {
         sumFont = workBook.createFont();
         sumFont.setFontName("宋体");
         sumFont.setFontHeightInPoints((short) 11);
+        sumFont.setBoldweight(XSSFFont.BOLDWEIGHT_BOLD);// 加粗
 
         sumStyle = workBook.createCellStyle();
         sumStyle.setFont(sumFont);
@@ -507,7 +508,7 @@ public class FileWriterUtils2 {
         sumStyle.setBorderBottom(CellStyle.BORDER_THIN);
         sumStyle.setBorderLeft(CellStyle.BORDER_THIN);
         sumStyle.setBorderRight(CellStyle.BORDER_THIN);
-        sumStyle.setAlignment(CellStyle.ALIGN_LEFT);
+        sumStyle.setAlignment(CellStyle.ALIGN_CENTER);
         sumStyle.setVerticalAlignment(CellStyle.VERTICAL_CENTER);
         
         //日期格式初始化:m/d/yy

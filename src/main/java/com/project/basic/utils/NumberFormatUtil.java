@@ -21,12 +21,15 @@ public class NumberFormatUtil {
         return String.format("%."+scale+"f", n);
     }
 
+    /**
+     * 注意和BigDecimal.ZERO进行比较的时候,使用compareTo方法,而不能使用equals方法!!!
+     */
     // 2、使用 DecimalFormat 对象的 format()方法
     public static String userDecimalFormat(BigDecimal number,int scale) {
         if(number==null){
             number=BigDecimal.ZERO;
         }
-        if(BigDecimal.ZERO.equals(number)){
+        if(BigDecimal.ZERO.compareTo(number)==0){
             return "0";
         }
         if(scale<0){
